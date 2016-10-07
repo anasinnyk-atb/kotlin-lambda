@@ -1,0 +1,38 @@
+apply plugin: 'java'
+apply plugin: 'kotlin'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'com.amazonaws:aws-lambda-java-core:1.1.0'
+    compile 'com.amazonaws:aws-lambda-java-events:1.1.0'
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.7'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.7'
+}
+
+buildscript {
+    ext.kotlin_version = '1.0.4'
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+task buildZip(type: Zip) {
+    baseName = "function"
+    from compileJava
+    from processResources
+    into('lib') {
+        from configurations.runtime
+    }
+}
+
+build.dependsOn buildZip
+sourceSets {
+    main.java.srcDirs += 'src/main/kotlin'
+}
